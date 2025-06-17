@@ -82,7 +82,7 @@ GMAIL_USER=your-email@gmail.com
 GMAIL_APP_PASSWORD=your-app-password
 
 # App Configuration
-NEXT_PUBLIC_APP_URL=https://dashwave.vercel.app/
+NEXT_PUBLIC_APP_URL=https://dashwave-six.vercel.app
 ```
 
 ### 4. Database Setup

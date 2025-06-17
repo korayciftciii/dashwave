@@ -5,7 +5,7 @@
     "author": {
         "name": "Koray Çiftçi",
         "email": "koray@example.com",
-        "url": "https://github.com/korayciftci"
+        "url": "https://github.com/korayciftciii"
     },
     "keywords": [
         "nextjs",
@@ -20,9 +20,9 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/korayciftci/dashwave.git"
+        "url": "https://github.com/korayciftciii/dashwave.git"
     },
-    "homepage": "https://dashwave.vercel.app",
+    "homepage": "https://dashwave-six.vercel.app",
     "license": "MIT",
     "private": true,
     "engines": {

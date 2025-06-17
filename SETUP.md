@@ -191,7 +191,7 @@ The application uses the following main entities:
 
 3. **Update Environment Variables**
    ```env
-   NEXT_PUBLIC_APP_URL=https://dashwave.vercel.app
+   NEXT_PUBLIC_APP_URL=https://dashwave-six.vercel.app
    ```
 
 4. **Update Clerk Settings**
