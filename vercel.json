@@ -1,0 +1,50 @@
+{
+    "version": 2,
+    "framework": "nextjs",
+    "functions": {
+        "src/app/api/**/*.ts": {
+            "maxDuration": 30
+        }
+    },
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Frame-Options",
+                    "value": "DENY"
+                },
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                },
+                {
+                    "key": "Referrer-Policy",
+                    "value": "strict-origin-when-cross-origin"
+                },
+                {
+                    "key": "Strict-Transport-Security",
+                    "value": "max-age=31536000; includeSubDomains"
+                }
+            ]
+        }
+    ],
+    "redirects": [
+        {
+            "source": "/login",
+            "destination": "/sign-in",
+            "permanent": true
+        },
+        {
+            "source": "/register",
+            "destination": "/sign-up",
+            "permanent": true
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/healthz",
+            "destination": "/api/health"
+        }
+    ]
+}

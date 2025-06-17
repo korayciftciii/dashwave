@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  clerkId      String       @unique
+  email        String
+  name         String?
+  teams        TeamMember[]
+  assignedTasks Task[]      @relation("AssignedTasks")
+  createdTasks Task[]      @relation("CreatedTasks")
+}
+  
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  description String?
+  members   TeamMember[]
+  projects  Project[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model TeamMember {
+  id     String   @id @default(cuid())
+  team   Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  role   String   @default("MEMBER") // OWNER, MANAGER, WRITER, MEMBER, VIEWER
+  customRoleTitle String? // Custom role name like "Lead Developer", "Designer" etc.
+  canManageTeam Boolean @default(false) // Can add/remove members, change roles
+  canManageProjects Boolean @default(false) // Can create/delete projects
+  canManageTasks Boolean @default(true) // Can create/assign tasks
+  canViewAll Boolean @default(true) // Can view all team content
+  joinedAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  description String?
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  tasks     Task[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  status       String   @default("todo") // e.g., "todo", "in-progress", "done"
+  priority     String   @default("medium") // e.g., "low", "medium", "high", "urgent"
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  assignedTo   User?    @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  assignedToId String?
+  createdBy    User     @relation("CreatedTasks", fields: [createdById], references: [id])
+  createdById  String
+  dueDate      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+} 
