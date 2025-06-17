@@ -206,7 +206,7 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 <div align="center">
   <p>
     <strong>Dashwave Architecture Documentation</strong><br/>
-    Created with ❤️ by <a href="https://github.com/korayciftciii"><strong>Koray Çiftçi</strong></a>
+    Created  by <a href="https://github.com/korayciftciii"><strong>Koray Çiftçi</strong></a>
   </p>
   <p>
     <strong>Version:</strong> 1.0.0 | <strong>Last Updated:</strong> June 2025

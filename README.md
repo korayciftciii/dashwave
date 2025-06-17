@@ -225,7 +225,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
   <p>
-    Created with ❤️ by <a href="https://github.com/korayciftciii"><strong>Koray Çiftçi</strong></a>
+    Created by <a href="https://github.com/korayciftciii"><strong>Koray Çiftçi</strong></a>
   </p>
   <p>
     <!-- <a href="https://twitter.com/korayciftci">Twitter</a> • -->
