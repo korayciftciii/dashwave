@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
     title: 'Dashwave',
-    description: 'Modern SaaS multi-tenant dashboard with team collaboration features.',
+    description: 'Modern SaaS Dashwave dashboard with team collaboration features.',
     authors: [{ name: 'Koray Çiftçi', url: 'https://korayciftci.vercel.app' }],
     icons: {
         icon: '/favicon.png',
