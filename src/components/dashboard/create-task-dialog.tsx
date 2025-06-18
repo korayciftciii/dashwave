@@ -13,11 +13,12 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { toast } from 'sonner'
-import { User } from 'lucide-react'
+import { User, Calendar, Clock, Tag } from 'lucide-react'
 
 interface TeamMember {
     id: string
@@ -43,6 +44,7 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
     const [loading, setLoading] = useState(false)
     const [assignedTo, setAssignedTo] = useState<string | undefined>(undefined)
     const [status, setStatus] = useState('todo')
+    const [priority, setPriority] = useState('medium')
     const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,6 +54,11 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
         const formData = new FormData(e.currentTarget)
         const title = formData.get('title') as string
         const description = formData.get('description') as string
+        const dueDate = formData.get('dueDate') as string
+        const startDate = formData.get('startDate') as string
+        const estimatedHours = formData.get('estimatedHours') as string
+        const tags = formData.get('tags') as string
+        const notes = formData.get('notes') as string
 
         try {
             const response = await fetch('/api/tasks', {
@@ -65,6 +72,12 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
                     description: description || undefined,
                     assignedToClerkId: assignedTo || undefined,
                     status,
+                    priority,
+                    dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+                    startDate: startDate ? new Date(startDate).toISOString() : undefined,
+                    estimatedHours: estimatedHours ? parseInt(estimatedHours) : undefined,
+                    tags: tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : [],
+                    notes: notes || undefined
                 }),
             })
 
@@ -87,7 +100,7 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>Create Task</DialogTitle>
@@ -96,6 +109,7 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
+                        {/* Basic Information */}
                         <div className="space-y-2">
                             <Label htmlFor="title">
                                 Task Title *
@@ -110,15 +124,17 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
 
                         <div className="space-y-2">
                             <Label htmlFor="description">
-                                Description (optional)
+                                Description
                             </Label>
-                            <Input
+                            <Textarea
                                 id="description"
                                 name="description"
                                 placeholder="Enter task description..."
+                                rows={3}
                             />
                         </div>
 
+                        {/* Status and Priority */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="status">
@@ -137,32 +153,122 @@ export default function CreateTaskDialog({ children, projectId, teamMembers = []
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="assignedTo">
-                                    Assign To
+                                <Label htmlFor="priority">
+                                    Priority
                                 </Label>
-                                <Select value={assignedTo} onValueChange={setAssignedTo}>
+                                <Select value={priority} onValueChange={setPriority}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select team member" />
+                                        <SelectValue placeholder="Select priority" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="unassigned">Unassigned</SelectItem>
-                                        {teamMembers.map((member) => (
-                                            <SelectItem key={member.id} value={member.user.clerkId}>
-                                                <div className="flex items-center space-x-2">
-                                                    <Avatar className="h-6 w-6">
-                                                        <AvatarImage src="" alt={member.user.name || member.user.email} />
-                                                        <AvatarFallback className="text-xs">
-                                                            {member.user.name?.split(' ').map(n => n[0]).join('') ||
-                                                                member.user.email.charAt(0).toUpperCase()}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="text-sm">{member.user.name || member.user.email}</span>
-                                                </div>
-                                            </SelectItem>
-                                        ))}
+                                        <SelectItem value="low">🟢 Low</SelectItem>
+                                        <SelectItem value="medium">🟡 Medium</SelectItem>
+                                        <SelectItem value="high">🟠 High</SelectItem>
+                                        <SelectItem value="urgent">🔴 Urgent</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
+                        </div>
+
+                        {/* Assignment */}
+                        <div className="space-y-2">
+                            <Label htmlFor="assignedTo" className="flex items-center space-x-1">
+                                <User className="h-4 w-4" />
+                                <span>Assign To</span>
+                            </Label>
+                            <Select value={assignedTo} onValueChange={setAssignedTo}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select team member" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                                    {teamMembers.map((member) => (
+                                        <SelectItem key={member.id} value={member.user.clerkId}>
+                                            <div className="flex items-center space-x-2">
+                                                <Avatar className="h-6 w-6">
+                                                    <AvatarImage src="" alt={member.user.name || member.user.email} />
+                                                    <AvatarFallback className="text-xs">
+                                                        {member.user.name?.split(' ').map(n => n[0]).join('') ||
+                                                            member.user.email.charAt(0).toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <span className="text-sm">{member.user.name || member.user.email}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Dates and Time Estimation */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="startDate" className="flex items-center space-x-1">
+                                    <Calendar className="h-4 w-4" />
+                                    <span>Start Date</span>
+                                </Label>
+                                <Input
+                                    id="startDate"
+                                    name="startDate"
+                                    type="date"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="dueDate" className="flex items-center space-x-1">
+                                    <Calendar className="h-4 w-4" />
+                                    <span>Due Date</span>
+                                </Label>
+                                <Input
+                                    id="dueDate"
+                                    name="dueDate"
+                                    type="date"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="estimatedHours" className="flex items-center space-x-1">
+                                <Clock className="h-4 w-4" />
+                                <span>Estimated Hours</span>
+                            </Label>
+                            <Input
+                                id="estimatedHours"
+                                name="estimatedHours"
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                placeholder="Enter estimated hours..."
+                            />
+                        </div>
+
+                        {/* Tags */}
+                        <div className="space-y-2">
+                            <Label htmlFor="tags" className="flex items-center space-x-1">
+                                <Tag className="h-4 w-4" />
+                                <span>Tags</span>
+                            </Label>
+                            <Input
+                                id="tags"
+                                name="tags"
+                                placeholder="Enter tags separated by commas..."
+                            />
+                            <p className="text-xs text-gray-500">
+                                Separate multiple tags with commas (e.g., frontend, bug, high-priority)
+                            </p>
+                        </div>
+
+                        {/* Notes */}
+                        <div className="space-y-2">
+                            <Label htmlFor="notes">
+                                Additional Notes
+                            </Label>
+                            <Textarea
+                                id="notes"
+                                name="notes"
+                                placeholder="Enter any additional notes..."
+                                rows={2}
+                            />
                         </div>
 
                         {teamMembers.length === 0 && (

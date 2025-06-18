@@ -20,7 +20,19 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json()
-        const { projectId, title, description, assignedToClerkId, status } = body
+        const {
+            projectId,
+            title,
+            description,
+            assignedToClerkId,
+            status,
+            priority,
+            dueDate,
+            startDate,
+            estimatedHours,
+            tags,
+            notes
+        } = body
 
         if (!projectId || !title) {
             return NextResponse.json(
@@ -85,9 +97,15 @@ export async function POST(request: NextRequest) {
                 title,
                 description,
                 status: status || 'todo',
+                priority: priority || 'medium',
                 projectId,
                 assignedToId: assignedUser?.id,
-                createdById: dbUser.id
+                createdById: dbUser.id,
+                dueDate: dueDate ? new Date(dueDate) : null,
+                startDate: startDate ? new Date(startDate) : null,
+                estimatedHours: estimatedHours || null,
+                tags: tags || [],
+                notes: notes || null
             },
             include: {
                 assignedTo: true,
@@ -122,25 +140,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            task: {
-                id: task.id,
-                title: task.title,
-                description: task.description,
-                status: task.status,
-                projectId: task.projectId,
-                assignedTo: task.assignedTo ? {
-                    id: task.assignedTo.id,
-                    name: task.assignedTo.name,
-                    email: task.assignedTo.email
-                } : null,
-                createdBy: {
-                    id: task.createdBy.id,
-                    name: task.createdBy.name,
-                    email: task.createdBy.email
-                },
-                createdAt: task.createdAt,
-                updatedAt: task.updatedAt
-            }
+            task
         })
     } catch (error) {
         console.error('Error creating task:', error)

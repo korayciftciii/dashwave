@@ -14,6 +14,7 @@ The system follows a layered architecture with clear separation of concerns:
 - **Authentication Layer**: Clerk authentication with JWT tokens
 - **Backend Layer**: API routes, Prisma ORM, email services
 - **Data Layer**: PostgreSQL database with Neon.tech
+- **Performance Layer**: SWR for data fetching, Suspense for streaming
 
 ## 🛠️ Technology Stack
 
@@ -23,6 +24,10 @@ The system follows a layered architecture with clear separation of concerns:
 - **[TailwindCSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible components
 - **[Lucide React](https://lucide.dev/)** - Icon library
+- **[React Big Calendar](https://github.com/jquense/react-big-calendar)** - Calendar component
+- **[Recharts](https://recharts.org/)** - Composable charting library
+- **[SWR](https://swr.vercel.app/)** - React Hooks for data fetching
+- **[Moment.js](https://momentjs.com/)** - Date manipulation library
 
 ### Backend Technologies
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM
@@ -32,6 +37,15 @@ The system follows a layered architecture with clear separation of concerns:
 ### Authentication & Security
 - **[Clerk](https://clerk.com/)** - Authentication platform
 - **Role-Based Access Control** - Custom authorization system
+
+### Performance Optimization
+- **Server Components** - Reduced client-side JavaScript
+- **Streaming & Suspense** - Progressive rendering
+- **Client-side Caching** - Optimized data fetching with SWR
+- **Image Optimization** - Next.js Image component
+- **Route Prefetching** - Faster page transitions
+- **Bundle Optimization** - Code splitting and tree shaking
+- **Memoization** - Preventing unnecessary re-renders
 
 ### Infrastructure & Deployment
 - **[Vercel](https://vercel.com/)** - Deployment platform
@@ -61,6 +75,27 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 3. **TeamMember** - Team membership with roles and permissions
 4. **Project** - Projects within teams
 5. **Task** - Tasks within projects with assignments
+
+### Task Schema
+- **id** - Unique identifier
+- **title** - Task name
+- **description** - Detailed description
+- **status** - todo, in-progress, done
+- **priority** - low, medium, high, urgent
+- **createdAt** - Creation timestamp
+- **updatedAt** - Last update timestamp
+- **projectId** - Associated project
+- **createdById** - User who created the task
+- **assignedToId** - User assigned to the task
+- **startDate** - When work should begin
+- **dueDate** - Deadline for completion
+- **estimatedHours** - Time estimation
+- **actualHours** - Time spent (optional)
+- **tags** - String array for categorization
+- **notes** - Additional information
+- **isBlocked** - Whether task is blocked
+- **blockedReason** - Why task is blocked (optional)
+- **completedAt** - When task was completed
 
 ### Role System
 - **OWNER** - Full access, can transfer ownership
@@ -112,8 +147,14 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 ### State Management
 - **React state** for local component state
 - **URL state** for navigation and filtering
-- **Server state** via API calls and caching
+- **Server state** via API calls and SWR caching
 - **Authentication state** through Clerk context
+
+### Dashboard Components
+- **TaskStatusChart** - Visualize task distribution
+- **TaskCalendar** - Calendar view for task scheduling
+- **TaskSearchFilter** - Advanced filtering system
+- **GroupedTasksView** - Project-based task organization
 
 ## 🔄 API Architecture
 
@@ -136,11 +177,15 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **Image optimization** with Next.js Image component
 - **Static generation** for public pages
 - **Client-side caching** for API responses
+- **Prefetching** for faster page transitions
+- **Memoization** to prevent unnecessary re-renders
+- **Suspense and Streaming** for progressive loading
 
 ### Backend Optimizations
 - **Database indexing** for query performance
 - **Connection pooling** for database efficiency
 - **Query optimization** with Prisma
+- **API response caching** with Cache-Control headers
 
 ### Infrastructure Optimizations
 - **CDN delivery** through Vercel
@@ -181,6 +226,9 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 3. **API rate limiting** and usage analytics
 4. **Mobile applications** with React Native
 5. **AI-powered insights** for project management
+6. **Kanban board view** for visual task management
+7. **Time tracking** integration
+8. **Document management** system
 
 ### Scalability Improvements
 1. **Microservices architecture** for complex features
@@ -209,6 +257,6 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
     Created  by <a href="https://github.com/korayciftciii"><strong>Koray Çiftçi</strong></a>
   </p>
   <p>
-    <strong>Version:</strong> 1.0.0 | <strong>Last Updated:</strong> June 2025
+    <strong>Version:</strong> 1.2.0 | <strong>Last Updated:</strong> June 2025
   </p>
 </div>

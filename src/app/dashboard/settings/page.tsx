@@ -230,6 +230,14 @@ export default async function SettingsPage() {
                                 <p className="font-medium">Database</p>
                                 <p className="text-gray-600">PostgreSQL (Neon)</p>
                             </div>
+                            <div>
+                                <p className="font-medium">Version</p>
+                                <p className="text-gray-600">1.2.0</p>
+                            </div>
+                            <div>
+                                <p className="font-medium">Last Updated</p>
+                                <p className="text-gray-600">June 2025</p>
+                            </div>
                         </div>
                     </div>
                 </CardContent>

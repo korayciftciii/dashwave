@@ -53,7 +53,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     }
 
     // Get project tasks
-    const tasks = await getProjectTasks(params.projectId)
+    const tasks = await prisma.task.findMany({
+        where: { projectId: params.projectId },
+        include: {
+            assignedTo: true
+        },
+        orderBy: { createdAt: 'desc' }
+    })
 
     // Task statistics
     const todoTasks = tasks.filter(task => task.status === 'todo')

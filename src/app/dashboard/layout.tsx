@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/dashboard/sidebar'
 import Header from '@/components/dashboard/header'
+import { updateUserWithClerkData } from '@/lib/actions'
 
 export default async function DashboardLayout({
     children,
@@ -13,6 +14,9 @@ export default async function DashboardLayout({
     if (!userId) {
         redirect('/sign-in')
     }
+
+    // Update user data from Clerk if needed
+    await updateUserWithClerkData()
 
     return (
         <div className="flex h-screen bg-gray-100">

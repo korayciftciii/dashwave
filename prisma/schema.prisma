@@ -70,6 +70,14 @@ model Task {
   createdBy    User     @relation("CreatedTasks", fields: [createdById], references: [id])
   createdById  String
   dueDate      DateTime?
+  startDate    DateTime?
+  estimatedHours Int?
+  actualHours    Int?
+  tags         String[] @default([])
+  notes        String?
+  isBlocked    Boolean  @default(false)
+  blockedReason String?
+  completedAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 } 

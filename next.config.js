@@ -3,6 +3,11 @@ const nextConfig = {
     // Optimize for production
     experimental: {
         optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+        serverActions: {
+            bodySizeLimit: '2mb',
+        },
+        // Add more experimental features
+        scrollRestoration: true,
     },
 
     // Image optimization
@@ -82,6 +87,10 @@ const nextConfig = {
                 // Remove unused lodash modules
                 'lodash': 'lodash-es',
             }
+
+            // Add more production optimizations
+            config.optimization.minimize = true;
+            config.optimization.usedExports = true;
         }
 
         return config
@@ -95,6 +104,10 @@ const nextConfig = {
 
     // Enable SWC minification
     swcMinify: true,
+
+    // Add more performance optimizations
+    poweredByHeader: false,
+    reactStrictMode: true,
 }
 
 module.exports = nextConfig 

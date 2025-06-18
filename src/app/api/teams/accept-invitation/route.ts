@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
     try {
+        const user = await currentUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const body = await request.json()
         const { teamId, userClerkId, email } = body
 
@@ -27,26 +33,56 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if user exists in our database
-        let user = await prisma.user.findUnique({
+        let dbUser = await prisma.user.findUnique({
             where: { clerkId: userClerkId }
         })
 
         // Create user if doesn't exist
-        if (!user) {
-            user = await prisma.user.create({
+        if (!dbUser) {
+            // Try to get the best name from Clerk user data
+            let userName = 'User'
+
+            if (user.fullName) {
+                userName = user.fullName
+            } else if (user.firstName && user.lastName) {
+                userName = `${user.firstName} ${user.lastName}`
+            } else if (user.firstName) {
+                userName = user.firstName
+            } else if (user.lastName) {
+                userName = user.lastName
+            } else {
+                // Use email username as fallback
+                if (email) {
+                    userName = email.split('@')[0]
+                }
+            }
+
+            dbUser = await prisma.user.create({
                 data: {
                     clerkId: userClerkId,
                     email: email,
-                    name: 'New User' // This will be updated from Clerk data
+                    name: userName
                 }
             })
+        } else {
+            // Update existing user if name is still 'User' or 'New User' and we have better data
+            if ((dbUser.name === 'User' || dbUser.name === 'New User' || !dbUser.name) && user.fullName) {
+                await prisma.user.update({
+                    where: { id: dbUser.id },
+                    data: {
+                        name: user.fullName,
+                        email: email || dbUser.email,
+                    }
+                })
+                dbUser.name = user.fullName
+            }
         }
 
         // Check if already a member
         const existingMember = await prisma.teamMember.findFirst({
             where: {
                 teamId: teamId,
-                userId: user.id
+                userId: dbUser.id
             }
         })
 
@@ -61,8 +97,8 @@ export async function POST(request: NextRequest) {
         await prisma.teamMember.create({
             data: {
                 teamId: teamId,
-                userId: user.id,
-                role: 'member'
+                userId: dbUser.id,
+                role: 'MEMBER'
             }
         })
 

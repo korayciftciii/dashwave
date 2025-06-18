@@ -39,6 +39,10 @@ This will install all required dependencies including:
 - Clerk authentication
 - Radix UI components
 - Nodemailer for emails
+- React Big Calendar for task calendar
+- Recharts for data visualization
+- SWR for data fetching
+- Moment.js for date handling
 
 ### 3. Database Setup (Neon.tech)
 
@@ -78,7 +82,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 1. Go to [Clerk Dashboard](https://dashboard.clerk.com/)
 2. Create a new application
-3. Choose your authentication providers (Email, Google, etc.)
+3. Choose your authentication providers (Email, Google, GitHub, Microsoft)
 4. Copy your API keys to the `.env.local` file
 
 #### Configure Redirects
@@ -131,7 +135,7 @@ Your application will be available at [http://localhost:3000](http://localhost:3
 
 ### 1. Authentication Test
 1. Navigate to `/sign-up`
-2. Create a new account
+2. Create a new account (try Google OAuth for testing)
 3. Verify you're redirected to `/dashboard`
 
 ### 2. Team Creation Test
@@ -146,8 +150,20 @@ Your application will be available at [http://localhost:3000](http://localhost:3
 
 ### 4. Project & Task Test
 1. Create a project within your team
-2. Create a task and assign it to yourself
+2. Create a task with the following details:
+   - Title and description
+   - Priority level (try Urgent)
+   - Set start and due dates
+   - Add estimated hours
+   - Add some tags
+   - Assign it to yourself
 3. Verify email notification is received
+4. Check task appears in Calendar view
+
+### 5. Dashboard Features Test
+1. Verify Task Status Chart shows your task
+2. Check Calendar view displays your task on the correct date
+3. Test filtering tasks by status and priority
 
 ## 🏗️ Database Schema Overview
 
@@ -158,7 +174,22 @@ The application uses the following main entities:
 - **Team** - Multi-tenant team workspaces
 - **TeamMember** - Team membership with roles and permissions
 - **Project** - Projects within teams
-- **Task** - Tasks within projects with assignments
+- **Task** - Tasks within projects with assignments, due dates, priorities, and tags
+
+### Task Properties
+- **title** - Task name
+- **description** - Detailed description
+- **status** - todo, in-progress, done
+- **priority** - low, medium, high, urgent
+- **startDate** - When work should begin
+- **dueDate** - Deadline for completion
+- **estimatedHours** - Time estimation
+- **actualHours** - Time spent (optional)
+- **tags** - String array for categorization
+- **notes** - Additional information
+- **isBlocked** - Whether task is blocked
+- **blockedReason** - Why task is blocked (optional)
+- **completedAt** - When task was completed
 
 ### Role System
 - **OWNER** - Full access, can transfer ownership
@@ -227,6 +258,21 @@ npx prisma db seed   # Seed database with sample data
 npx prisma generate  # Generate Prisma client
 ```
 
+### Performance Optimization
+
+To optimize the application for better performance:
+
+```bash
+# Analyze bundle size
+npm run build:analyze
+
+# Clean build cache
+npm run clean
+
+# Production preview
+npm run preview
+```
+
 ### Useful Development Tools
 ```bash
 # View database
@@ -248,45 +294,44 @@ npm run dev -- --verbose
 - Check network connectivity
 - Ensure database exists
 
-#### 2. Clerk Authentication Issues
-- Verify API keys are correct
-- Check allowed origins in Clerk dashboard
-- Ensure redirect URLs match
+#### 2. Authentication Issues
+- Verify Clerk API keys
+- Check allowed domains in Clerk dashboard
+- Clear browser cookies
 
-#### 3. Email Not Sending
-- Verify Gmail credentials
-- Check App Password is 16 characters
-- Ensure 2FA is enabled on Gmail
+#### 3. Email Sending Fails
+- Verify GMAIL_APP_PASSWORD is correct
+- Check if 2FA is enabled on Gmail
+- Verify GMAIL_USER is correct
 
-#### 4. Build Errors
-- Run `npm run lint` to check for errors
-- Verify all environment variables are set
-- Check TypeScript errors with `npm run type-check`
+#### 4. Calendar View Not Loading
+- Check console for React Big Calendar errors
+- Ensure tasks have valid date objects
+- Verify moment.js is properly installed
 
-### Environment Variables Checklist
-
-Ensure all these are set in your `.env.local`:
-
-```bash
-✅ DATABASE_URL
-✅ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-✅ CLERK_SECRET_KEY
-✅ NEXT_PUBLIC_CLERK_SIGN_IN_URL
-✅ NEXT_PUBLIC_CLERK_SIGN_UP_URL
-✅ NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL
-✅ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL
-✅ GMAIL_USER
-✅ GMAIL_APP_PASSWORD
-✅ NEXT_PUBLIC_APP_URL
-```
+#### 5. Performance Issues
+- Use production build for accurate performance testing
+- Check network tab for slow API requests
+- Verify SWR is properly caching responses
 
 ## 📚 Additional Resources
 
-- **[Next.js Documentation](https://nextjs.org/docs)**
-- **[Prisma Documentation](https://www.prisma.io/docs)**
-- **[Clerk Documentation](https://clerk.com/docs)**
-- **[TailwindCSS Documentation](https://tailwindcss.com/docs)**
-- **[Vercel Deployment Guide](https://vercel.com/docs)**
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Clerk Documentation](https://clerk.com/docs)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [React Big Calendar Documentation](https://github.com/jquense/react-big-calendar)
+- [Recharts Documentation](https://recharts.org/en-US/api)
+- [SWR Documentation](https://swr.vercel.app/docs/getting-started)
+
+---
+
+<div align="center">
+  <p>
+    <strong>Dashwave Setup Guide</strong><br/>
+    Version 1.2.0 | Last Updated: June 2025
+  </p>
+</div>
 
 ## 🆘 Getting Help
 

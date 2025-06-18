@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { SignOutButton } from '@clerk/nextjs'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useMemo, useEffect } from 'react'
 import {
     LayoutDashboard,
     FolderOpen,
@@ -30,6 +30,28 @@ export default function Sidebar() {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
     const [activeNav, setActiveNav] = useState<string | null>(null)
+    const [isNavigating, setIsNavigating] = useState(false)
+
+    // Memoize active state to prevent unnecessary re-renders
+    const activeStates = useMemo(() => {
+        return navigation.map(item => ({
+            href: item.href,
+            isActive: pathname === item.href
+        }));
+    }, [pathname]);
+
+    // Navigation progress indicator
+    useEffect(() => {
+        if (isPending) {
+            setIsNavigating(true);
+        } else {
+            // Small delay to ensure smooth transition
+            const timer = setTimeout(() => {
+                setIsNavigating(false);
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isPending]);
 
     const handleNavigation = (href: string) => {
         if (pathname === href) return // Don't navigate if already on the page
@@ -42,32 +64,42 @@ export default function Sidebar() {
 
     return (
         <div className="flex flex-col w-64 bg-white shadow-lg border-r">
+            {/* Navigation Progress Indicator */}
+            {isNavigating && (
+                <div className="absolute top-0 left-0 w-full h-1 z-50">
+                    <div className="h-full bg-blue-600 animate-pulse"></div>
+                </div>
+            )}
+
             {/* Logo */}
             <div className="flex items-center justify-center h-16 px-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
-                <div className="flex items-center space-x-3">
-                    <div className="relative">
-                        <Image
-                            src="/logo.png"
-                            alt="Dashwave Logo"
-                            width={32}
-                            height={32}
-                            className="rounded-lg shadow-sm"
-                        />
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <Link href="/dashboard" prefetch={true}>
+                    <div className="flex items-center space-x-3">
+                        <div className="relative">
+                            <Image
+                                src="/logo.png"
+                                alt="Dashwave Logo"
+                                width={32}
+                                height={32}
+                                className="rounded-lg shadow-sm"
+                                priority={true}
+                            />
+                            <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        </div>
+                        <div>
+                            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                Dashwave
+                            </span>
+                            <p className="text-xs text-gray-500 -mt-1">Team Platform</p>
+                        </div>
                     </div>
-                    <div>
-                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Dashwave
-                        </span>
-                        <p className="text-xs text-gray-500 -mt-1">Team Platform</p>
-                    </div>
-                </div>
+                </Link>
             </div>
 
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-2">
-                {navigation.map((item) => {
-                    const isActive = pathname === item.href
+                {navigation.map((item, index) => {
+                    const isActive = activeStates[index].isActive;
                     const isLoading = isPending && activeNav === item.href
 
                     return (
@@ -125,6 +157,9 @@ export default function Sidebar() {
                         Sign Out
                     </Button>
                 </SignOutButton>
+                <div className="mt-4 text-center">
+                    <p className="text-xs text-gray-500">Dashwave v1.2.0</p>
+                </div>
             </div>
         </div>
     )

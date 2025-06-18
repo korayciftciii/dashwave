@@ -4,11 +4,11 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.0-white?logo=prisma)](https://www.prisma.io/)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.8.1-white?logo=prisma)](https://www.prisma.io/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.3-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?logo=clerk)](https://clerk.com/)
 
-A modern, full-stack SaaS platform for team collaboration, project management, and task tracking. Built with the latest web technologies and designed for scalability.
+A modern, full-stack SaaS platform for team collaboration, project management, and task tracking. Built with the latest web technologies and designed for scalability and performance.
 
 ## ✨ Features
 
@@ -24,10 +24,23 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **Task Assignment**: Assign tasks to team members with email notifications
 - **Progress Tracking**: Visual progress indicators and completion statistics
 
+### 📅 Advanced Task Features
+- **Task Calendar**: View tasks organized by due dates in month/week/day views
+- **Task Status Chart**: Visual distribution of tasks across statuses
+- **Priority Levels**: Low, Medium, High, and Urgent with visual indicators
+- **Due Date Tracking**: Overdue and due-soon warnings with visual feedback
+- **Task Details**: Start dates, due dates, estimated hours, tags, and notes
+
+### 🔍 Search & Filtering
+- **Task Search**: Find tasks by title, description, or tags
+- **Advanced Filters**: Filter by status, priority, assignee, and dates
+- **Grouped Views**: Organize tasks by project with collapsible sections
+
 ### 🔐 Security & Authentication
 - **Enterprise-Grade Auth**: Powered by Clerk authentication
 - **Secure by Design**: Role-based access control at every level
 - **Data Isolation**: Complete tenant separation for security and privacy
+- **OAuth Support**: Google, GitHub, and Microsoft authentication
 
 ### 📧 Communication
 - **Email Notifications**: Automatic notifications for task assignments
@@ -38,6 +51,7 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **Responsive Design**: Works perfectly on all devices
 - **Loading States**: Smooth transitions and loading indicators
 - **Modern Components**: Built with Radix UI and TailwindCSS
+- **Performance Optimized**: Fast page transitions and optimized data loading
 
 ## 🚀 Quick Start
 
@@ -121,12 +135,19 @@ dashwave/
 │   │   └── globals.css      # Global styles
 │   ├── components/
 │   │   ├── dashboard/       # Dashboard-specific components
+│   │   │   ├── task-calendar.tsx    # Calendar view for tasks
+│   │   │   ├── task-status-chart.tsx # Task status visualization
+│   │   │   ├── task-search-filter.tsx # Advanced search & filtering
+│   │   │   ├── grouped-tasks-view.tsx # Project-grouped tasks
+│   │   │   └── ...          # Other dashboard components
 │   │   └── ui/             # Reusable UI components
 │   ├── lib/
 │   │   ├── actions.ts       # Server actions
+│   │   ├── email-actions.ts # Email-specific actions
 │   │   ├── email.ts         # Email utilities
 │   │   ├── prisma.ts        # Prisma client
-│   │   └── utils.ts         # Utility functions
+│   │   ├── utils.ts         # Utility functions
+│   │   └── hooks/           # Custom React hooks
 │   └── middleware.ts        # Clerk authentication middleware
 ├── README.md
 ├── SETUP.md                 # Detailed setup instructions
@@ -141,6 +162,9 @@ dashwave/
 - **[TailwindCSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible components
 - **[Lucide React](https://lucide.dev/)** - Beautiful & consistent icons
+- **[React Big Calendar](https://github.com/jquense/react-big-calendar)** - Calendar component
+- **[Recharts](https://recharts.org/)** - Composable charting library
+- **[SWR](https://swr.vercel.app/)** - React Hooks for data fetching
 
 ### Backend
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM
@@ -150,6 +174,13 @@ dashwave/
 ### Authentication & Security
 - **[Clerk](https://clerk.com/)** - Complete authentication solution
 - **Role-Based Access Control** - Custom permission system
+
+### Performance Optimization
+- **Server Components** - Reduced client-side JavaScript
+- **Streaming & Suspense** - Progressive rendering
+- **Client-side Caching** - Optimized data fetching
+- **Image Optimization** - Next.js Image component
+- **Route Prefetching** - Faster page transitions
 
 ### Deployment & DevOps
 - **[Vercel](https://vercel.com/)** - Seamless deployment platform
@@ -171,9 +202,21 @@ dashwave/
 
 ### Task Management
 1. Open a project to view its tasks
-2. Create tasks and assign them to team members
+2. Create tasks with detailed information:
+   - Title and description
+   - Priority level (Low, Medium, High, Urgent)
+   - Start and due dates
+   - Estimated hours
+   - Tags for categorization
+   - Assignment to team members
 3. Update task status (To Do, In Progress, Done)
 4. Track progress through the project dashboard
+
+### Task Visualization
+1. Use the Calendar view to see tasks by dates
+2. View task distribution in the Status Chart
+3. Filter tasks by various criteria
+4. Group tasks by project for better organization
 
 ### Role Management
 1. As a team owner/manager, go to team settings

@@ -49,7 +49,8 @@ export default async function TasksPage() {
                 include: {
                     team: true
                 }
-            }
+            },
+            assignedTo: true
         },
         orderBy: {
             createdAt: 'desc'

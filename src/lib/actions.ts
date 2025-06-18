@@ -15,13 +15,94 @@ export async function ensureUserExists() {
 
     // Create user if doesn't exist
     if (!dbUser) {
+        // Try to get the best name from user data
+        let userName = 'User'
+
+        // First try direct user properties
+        if (user.fullName) {
+            userName = user.fullName
+        } else if (user.firstName && user.lastName) {
+            userName = `${user.firstName} ${user.lastName}`
+        } else if (user.firstName) {
+            userName = user.firstName
+        } else if (user.lastName) {
+            userName = user.lastName
+        } else {
+            // Try to get from external accounts (Google, GitHub, etc.)
+            const externalAccount = user.externalAccounts.find(account =>
+                account.provider === 'oauth_google' ||
+                account.provider === 'oauth_github' ||
+                account.provider === 'oauth_microsoft'
+            )
+
+            if (externalAccount) {
+                if (externalAccount.firstName && externalAccount.lastName) {
+                    userName = `${externalAccount.firstName} ${externalAccount.lastName}`
+                } else if (externalAccount.firstName) {
+                    userName = externalAccount.firstName
+                } else if (externalAccount.lastName) {
+                    userName = externalAccount.lastName
+                }
+            } else {
+                // Use email username as fallback
+                const email = user.emailAddresses[0]?.emailAddress
+                if (email) {
+                    userName = email.split('@')[0]
+                }
+            }
+        }
+
         dbUser = await prisma.user.create({
             data: {
                 clerkId: user.id,
                 email: user.emailAddresses[0]?.emailAddress || '',
-                name: user.fullName || user.firstName || 'User',
+                name: userName,
             },
         })
+    } else {
+        // Update existing user if name is still 'User' or 'New User' and we have better data
+        if (dbUser.name === 'User' || dbUser.name === 'New User' || !dbUser.name) {
+            let userName = dbUser.name || 'User'
+
+            // First try direct user properties
+            if (user.fullName) {
+                userName = user.fullName
+            } else if (user.firstName && user.lastName) {
+                userName = `${user.firstName} ${user.lastName}`
+            } else if (user.firstName) {
+                userName = user.firstName
+            } else if (user.lastName) {
+                userName = user.lastName
+            } else {
+                // Try to get from external accounts (Google, GitHub, etc.)
+                const externalAccount = user.externalAccounts.find(account =>
+                    account.provider === 'oauth_google' ||
+                    account.provider === 'oauth_github' ||
+                    account.provider === 'oauth_microsoft'
+                )
+
+                if (externalAccount) {
+                    if (externalAccount.firstName && externalAccount.lastName) {
+                        userName = `${externalAccount.firstName} ${externalAccount.lastName}`
+                    } else if (externalAccount.firstName) {
+                        userName = externalAccount.firstName
+                    } else if (externalAccount.lastName) {
+                        userName = externalAccount.lastName
+                    }
+                }
+            }
+
+            if (userName !== dbUser.name) {
+                await prisma.user.update({
+                    where: { id: dbUser.id },
+                    data: {
+                        name: userName,
+                        email: user.emailAddresses[0]?.emailAddress || dbUser.email,
+                    }
+                })
+                dbUser.name = userName
+            }
+        }
     }
 
     return dbUser
@@ -53,12 +134,16 @@ export async function getUserStats(clerkId: string) {
     const allTasks = userTeams.flatMap((tm: any) => tm.team.projects.flatMap((p: any) => p.tasks))
     const totalTasks = allTasks.length
     const completedTasks = allTasks.filter((task: any) => task.status === 'done').length
+    const todoTasks = allTasks.filter((task: any) => task.status === 'todo').length
+    const inProgressTasks = allTasks.filter((task: any) => task.status === 'in-progress').length
 
     return {
         totalTeams,
         totalProjects,
         totalTasks,
-        completedTasks
+        completedTasks,
+        todoTasks,
+        inProgressTasks
     }
 }
 
@@ -192,6 +277,9 @@ export async function getProjectTasks(projectId: string) {
 
     const tasks = await prisma.task.findMany({
         where: { projectId },
+        include: {
+            assignedTo: true
+        },
         orderBy: { createdAt: 'desc' }
     })
 
@@ -203,7 +291,13 @@ export async function createTask(
     title: string,
     description?: string,
     assignedToClerkId?: string,
-    status: 'todo' | 'in-progress' | 'done' = 'todo'
+    status: 'todo' | 'in-progress' | 'done' = 'todo',
+    priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium',
+    dueDate?: string,
+    startDate?: string,
+    estimatedHours?: number,
+    tags?: string[],
+    notes?: string
 ) {
     const { userId } = auth()
     if (!userId) {
@@ -254,8 +348,14 @@ export async function createTask(
             description,
             projectId,
             status: status || 'todo',
+            priority: priority || 'medium',
             assignedToId: assignedToUserId,
-            createdById: currentUser.id
+            createdById: currentUser.id,
+            dueDate: dueDate ? new Date(dueDate) : null,
+            startDate: startDate ? new Date(startDate) : null,
+            estimatedHours: estimatedHours || null,
+            tags: tags || [],
+            notes: notes || null
         }
     })
 
@@ -294,4 +394,108 @@ export async function updateTaskStatus(taskId: string, status: string) {
     })
 
     return updatedTask
+}
+
+export async function updateUserWithClerkData() {
+    const user = await currentUser()
+    if (!user) {
+        redirect('/sign-in')
+    }
+
+    await ensureUserExists()
+    return { success: true }
+}
+
+export async function getUserDashboardData(clerkId: string) {
+    // Get user from clerk ID
+    const user = await prisma.user.findUnique({
+        where: { clerkId }
+    })
+
+    if (!user) {
+        throw new Error('User not found')
+    }
+
+    // Get all user teams with projects and tasks
+    const teamsWithProjects = await prisma.teamMember.findMany({
+        where: { userId: user.id },
+        include: {
+            team: {
+                include: {
+                    projects: {
+                        include: {
+                            tasks: {
+                                include: {
+                                    assignedTo: true
+                                }
+                            },
+                            team: true
+                        }
+                    },
+                    members: {
+                        include: {
+                            user: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    // Flatten all tasks from all projects
+    const allTasks: any[] = []
+    const allProjects: any[] = []
+    const teamMembers: any[] = []
+    const availableTags = new Set<string>()
+
+    teamsWithProjects.forEach(teamMember => {
+        // Add team members
+        teamMember.team.members.forEach(member => {
+            if (!teamMembers.some(tm => tm.id === member.id)) {
+                teamMembers.push(member)
+            }
+        })
+
+        // Add projects and tasks
+        teamMember.team.projects.forEach(project => {
+            allProjects.push({
+                ...project,
+                tasks: project.tasks.map(task => ({
+                    ...task,
+                    assignedTo: task.assignedTo ? {
+                        name: task.assignedTo.name,
+                        email: task.assignedTo.email
+                    } : null
+                }))
+            })
+
+            project.tasks.forEach(task => {
+                allTasks.push({
+                    ...task,
+                    assignedTo: task.assignedTo ? {
+                        name: task.assignedTo.name,
+                        email: task.assignedTo.email
+                    } : null,
+                    project: {
+                        name: project.name,
+                        team: {
+                            name: teamMember.team.name
+                        }
+                    }
+                })
+
+                // Collect tags
+                if (task.tags && Array.isArray(task.tags)) {
+                    task.tags.forEach(tag => availableTags.add(tag))
+                }
+            })
+        })
+    })
+
+    return {
+        allTasks,
+        allProjects,
+        teamMembers,
+        availableTags: Array.from(availableTags)
+    }
 } 

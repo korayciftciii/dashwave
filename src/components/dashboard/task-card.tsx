@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Circle, Clock, CheckCircle, MoreHorizontal, Calendar, User } from 'lucide-react'
+import { Circle, Clock, CheckCircle, Calendar, User, Tag, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Task {
@@ -20,16 +20,21 @@ interface Task {
     title: string
     description: string | null
     status: string
+    priority: string
     createdAt: Date
     assignedToId: string | null
+    dueDate: Date | null
+    startDate: Date | null
+    estimatedHours: number | null
+    tags: string[]
+    notes: string | null
 }
 
 interface TaskCardProps {
     task: Task & {
         assignedTo?: {
-            firstName: string | null
-            lastName: string | null
-            emailAddress: string
+            name: string | null
+            email: string
         } | null
     }
     onUpdate?: () => void
@@ -51,6 +56,20 @@ const statusLabels = {
     todo: 'To Do',
     'in-progress': 'In Progress',
     done: 'Done'
+}
+
+const priorityColors = {
+    low: 'bg-green-100 text-green-800',
+    medium: 'bg-yellow-100 text-yellow-800',
+    high: 'bg-orange-100 text-orange-800',
+    urgent: 'bg-red-100 text-red-800'
+}
+
+const priorityEmojis = {
+    low: '🟢',
+    medium: '🟡',
+    high: '🟠',
+    urgent: '🔴'
 }
 
 export default function TaskCard({ task, onUpdate }: TaskCardProps) {
@@ -87,49 +106,95 @@ export default function TaskCard({ task, onUpdate }: TaskCardProps) {
     }
 
     const StatusIcon = statusIcons[status as keyof typeof statusIcons] || Circle
+    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && status !== 'done'
+    const isDueSoon = task.dueDate && !isOverdue &&
+        new Date(task.dueDate).getTime() - new Date().getTime() < 24 * 60 * 60 * 1000 &&
+        status !== 'done'
 
     return (
-        <Card className="w-full">
+        <Card className={`w-full ${isOverdue ? 'border-red-300 bg-red-50' : isDueSoon ? 'border-yellow-300 bg-yellow-50' : ''}`}>
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{task.title}</CardTitle>
-                    <Badge className={`${statusColors[status as keyof typeof statusColors]} text-white`}>
-                        {statusLabels[status as keyof typeof statusLabels]}
-                    </Badge>
+                    <CardTitle className="text-lg flex items-center space-x-2">
+                        <span>{task.title}</span>
+                        {isOverdue && <AlertTriangle className="h-4 w-4 text-red-500" />}
+                    </CardTitle>
+                    <div className="flex items-center space-x-2">
+                        <Badge className={`${priorityColors[task.priority as keyof typeof priorityColors]}`}>
+                            {priorityEmojis[task.priority as keyof typeof priorityEmojis]} {task.priority}
+                        </Badge>
+                        <Badge className={`${statusColors[status as keyof typeof statusColors]} text-white`}>
+                            {statusLabels[status as keyof typeof statusLabels]}
+                        </Badge>
+                    </div>
                 </div>
             </CardHeader>
-            {task.description && (
+            {(task.description || task.notes) && (
                 <CardContent className="pb-3">
-                    <p className="text-sm text-gray-600">{task.description}</p>
+                    {task.description && (
+                        <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                    )}
+                    {task.notes && (
+                        <p className="text-xs text-gray-500 italic">Note: {task.notes}</p>
+                    )}
                 </CardContent>
             )}
-            <CardFooter className="flex items-center justify-between pt-3">
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(task.createdAt).toLocaleDateString()}</span>
+            <CardFooter className="flex flex-col space-y-3 pt-3">
+                {/* Tags */}
+                {task.tags && task.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 w-full">
+                        {task.tags.map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                                <Tag className="h-3 w-3 mr-1" />
+                                {tag}
+                            </Badge>
+                        ))}
                     </div>
-                    {task.assignedTo && (
+                )}
+
+                {/* Task Info */}
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
                         <div className="flex items-center space-x-1">
-                            <User className="h-4 w-4" />
-                            <span>
-                                {task.assignedTo.firstName || task.assignedTo.lastName
-                                    ? `${task.assignedTo.firstName || ''} ${task.assignedTo.lastName || ''}`.trim()
-                                    : task.assignedTo.emailAddress}
-                            </span>
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(task.createdAt).toLocaleDateString()}</span>
                         </div>
-                    )}
+
+                        {task.dueDate && (
+                            <div className={`flex items-center space-x-1 ${isOverdue ? 'text-red-600' : isDueSoon ? 'text-yellow-600' : ''}`}>
+                                <AlertTriangle className="h-4 w-4" />
+                                <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                            </div>
+                        )}
+
+                        {task.estimatedHours && (
+                            <div className="flex items-center space-x-1">
+                                <Clock className="h-4 w-4" />
+                                <span>{task.estimatedHours}h</span>
+                            </div>
+                        )}
+
+                        {task.assignedTo && (
+                            <div className="flex items-center space-x-1">
+                                <User className="h-4 w-4" />
+                                <span>
+                                    {task.assignedTo.name || task.assignedTo.email}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    <Select value={status} onValueChange={handleStatusChange} disabled={loading}>
+                        <SelectTrigger className="w-32">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="todo">To Do</SelectItem>
+                            <SelectItem value="in-progress">In Progress</SelectItem>
+                            <SelectItem value="done">Done</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-                <Select value={status} onValueChange={handleStatusChange} disabled={loading}>
-                    <SelectTrigger className="w-32">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="todo">To Do</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
-                    </SelectContent>
-                </Select>
             </CardFooter>
         </Card>
     )
