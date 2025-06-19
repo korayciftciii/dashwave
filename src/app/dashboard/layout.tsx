@@ -1,10 +1,9 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import Sidebar from '@/components/dashboard/sidebar'
-import Header from '@/components/dashboard/header'
+import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { updateUserWithClerkData } from '@/lib/actions'
 
-export default async function DashboardLayout({
+export default async function Layout({
     children,
 }: {
     children: React.ReactNode
@@ -18,15 +17,5 @@ export default async function DashboardLayout({
     // Update user data from Clerk if needed
     await updateUserWithClerkData()
 
-    return (
-        <div className="flex h-screen bg-gray-100">
-            <Sidebar />
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <Header />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-                    {children}
-                </main>
-            </div>
-        </div>
-    )
+    return <DashboardLayout>{children}</DashboardLayout>
 } 

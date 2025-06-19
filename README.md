@@ -52,6 +52,10 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **Loading States**: Smooth transitions and loading indicators
 - **Modern Components**: Built with Radix UI and TailwindCSS
 - **Performance Optimized**: Fast page transitions and optimized data loading
+- **Collapsible Sidebar**: Toggleable sidebar that adapts to different screen sizes
+- **Mobile-First Layout**: Optimized for both desktop and mobile experiences
+- **Animated Transitions**: Smooth animations using Framer Motion
+- **Tooltips & Hints**: Improved user experience with contextual information
 
 ## 🚀 Quick Start
 
@@ -140,6 +144,11 @@ dashwave/
 │   │   │   ├── task-search-filter.tsx # Advanced search & filtering
 │   │   │   ├── grouped-tasks-view.tsx # Project-grouped tasks
 │   │   │   └── ...          # Other dashboard components
+│   │   ├── layout/          # Layout components
+│   │   │   └── dashboard-layout.tsx # Main dashboard layout
+│   │   ├── sidebar.tsx      # Collapsible sidebar component
+│   │   ├── topbar.tsx       # Header component
+│   │   ├── sidebar-link.tsx # Navigation link component
 │   │   └── ui/             # Reusable UI components
 │   ├── lib/
 │   │   ├── actions.ts       # Server actions
@@ -148,6 +157,7 @@ dashwave/
 │   │   ├── prisma.ts        # Prisma client
 │   │   ├── utils.ts         # Utility functions
 │   │   └── hooks/           # Custom React hooks
+│   │       └── use-sidebar.ts # Sidebar state management hook
 │   └── middleware.ts        # Clerk authentication middleware
 ├── README.md
 ├── SETUP.md                 # Detailed setup instructions
@@ -165,6 +175,7 @@ dashwave/
 - **[React Big Calendar](https://github.com/jquense/react-big-calendar)** - Calendar component
 - **[Recharts](https://recharts.org/)** - Composable charting library
 - **[SWR](https://swr.vercel.app/)** - React Hooks for data fetching
+- **[Framer Motion](https://www.framer.com/motion/)** - Animation library for React
 
 ### Backend
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM

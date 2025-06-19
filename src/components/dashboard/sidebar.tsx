@@ -11,7 +11,8 @@ import {
     Settings,
     CheckSquare,
     LogOut,
-    Loader2
+    Loader2,
+    BarChart3
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ const navigation = [
     { name: 'My Tasks', href: '/dashboard/tasks', icon: CheckSquare },
     { name: 'Projects', href: '/dashboard/projects', icon: FolderOpen },
     { name: 'Teams', href: '/dashboard/teams', icon: Users },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 

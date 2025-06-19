@@ -17,6 +17,7 @@ model User {
   teams        TeamMember[]
   assignedTasks Task[]      @relation("AssignedTasks")
   createdTasks Task[]      @relation("CreatedTasks")
+  uploadedFiles ProjectFile[] @relation("UploadedFiles")
 }
   
 model Team {
@@ -53,6 +54,7 @@ model Project {
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId    String
   tasks     Task[]
+  files     ProjectFile[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -80,4 +82,18 @@ model Task {
   completedAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model ProjectFile {
+  id          String   @id @default(cuid())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  fileUrl     String
+  fileName    String
+  fileType    String   // "image", "pdf", etc.
+  fileSize    Int      // Size in bytes
+  publicId    String
+  uploadedBy  User     @relation("UploadedFiles", fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt   DateTime @default(now())
 } 

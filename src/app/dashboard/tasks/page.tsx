@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Calendar, User, FolderOpen, CheckCircle, Clock, Circle } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import TaskCard from '@/components/dashboard/task-card'
 
 const statusIcons = {
     todo: Circle,
@@ -39,7 +40,7 @@ export default async function TasksPage() {
         redirect('/sign-in')
     }
 
-    // Get tasks assigned to user
+    // Get tasks assigned to user with team membership information
     const assignedTasks = await prisma.task.findMany({
         where: {
             assignedToId: dbUser.id
@@ -47,7 +48,19 @@ export default async function TasksPage() {
         include: {
             project: {
                 include: {
-                    team: true
+                    team: {
+                        include: {
+                            members: {
+                                where: {
+                                    userId: dbUser.id
+                                },
+                                select: {
+                                    role: true,
+                                    canManageTasks: true
+                                }
+                            }
+                        }
+                    }
                 }
             },
             assignedTo: true
@@ -127,34 +140,26 @@ export default async function TasksPage() {
                                         No tasks in this status
                                     </p>
                                 ) : (
-                                    tasks.map((task) => (
-                                        <Card key={task.id} className="border border-gray-200">
-                                            <CardHeader className="pb-3">
-                                                <CardTitle className="text-base">{task.title}</CardTitle>
-                                                {task.description && (
-                                                    <CardDescription className="text-sm">
-                                                        {task.description}
-                                                    </CardDescription>
-                                                )}
-                                            </CardHeader>
-                                            <CardContent className="pt-0">
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                                        <FolderOpen className="h-4 w-4" />
-                                                        <span>{task.project.name}</span>
-                                                    </div>
-                                                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                                        <User className="h-4 w-4" />
-                                                        <span>{task.project.team.name}</span>
-                                                    </div>
-                                                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                                        <Calendar className="h-4 w-4" />
-                                                        <span>{new Date(task.createdAt).toLocaleDateString()}</span>
-                                                    </div>
+                                    tasks.map((task) => {
+                                        const teamMember = task.project.team.members[0];
+                                        const teamMemberInfo = teamMember ? {
+                                            role: teamMember.role,
+                                            canManageTasks: teamMember.canManageTasks
+                                        } : undefined;
+
+                                        return (
+                                            <div key={task.id} className="mb-4">
+                                                <TaskCard
+                                                    task={task}
+                                                    teamMember={teamMemberInfo}
+                                                />
+                                                <div className="mt-2 text-xs text-gray-500 flex items-center space-x-2">
+                                                    <FolderOpen className="h-3 w-3" />
+                                                    <span>{task.project.name} • {task.project.team.name}</span>
                                                 </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))
+                                            </div>
+                                        );
+                                    })
                                 )}
                             </CardContent>
                         </Card>

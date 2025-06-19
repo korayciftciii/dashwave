@@ -184,10 +184,12 @@ async function DashboardChart() {
                                 All Tasks
                             </Button>
                         </Link>
-                        <Button variant="outline" className="w-full justify-start">
-                            <BarChart3 className="h-4 w-4 mr-2" />
-                            Analytics
-                        </Button>
+                        <Link href="/dashboard/analytics" prefetch={true}>
+                            <Button variant="outline" className="w-full justify-start">
+                                <BarChart3 className="h-4 w-4 mr-2" />
+                                Analytics
+                            </Button>
+                        </Link>
                     </div>
                 </CardContent>
             </Card>

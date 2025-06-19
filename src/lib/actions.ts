@@ -498,4 +498,94 @@ export async function getUserDashboardData(clerkId: string) {
         teamMembers,
         availableTags: Array.from(availableTags)
     }
+}
+
+export async function getUserAnalyticsData(clerkId: string) {
+    // Get user from clerk ID
+    const user = await prisma.user.findUnique({
+        where: { clerkId },
+        include: {
+            teams: {
+                include: {
+                    team: {
+                        include: {
+                            projects: {
+                                include: {
+                                    tasks: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            assignedTasks: true,
+            createdTasks: true
+        }
+    })
+
+    if (!user) {
+        throw new Error('User not found')
+    }
+
+    // Calculate analytics data
+    const totalTeams = user.teams.length
+    const totalProjects = user.teams.reduce((acc, team) => acc + team.team.projects.length, 0)
+    const totalTasks = user.assignedTasks.length + user.createdTasks.length
+
+    // Task status distribution
+    const taskStatusDistribution = {
+        todo: 0,
+        inProgress: 0,
+        done: 0,
+        blocked: 0
+    }
+
+    // Combine assigned and created tasks while removing duplicates
+    const allTasks = [...user.assignedTasks]
+    user.createdTasks.forEach(task => {
+        if (!allTasks.some(t => t.id === task.id)) {
+            allTasks.push(task)
+        }
+    })
+
+    allTasks.forEach(task => {
+        if (task.status === 'todo') taskStatusDistribution.todo++
+        else if (task.status === 'in-progress') taskStatusDistribution.inProgress++
+        else if (task.status === 'done') taskStatusDistribution.done++
+        else if (task.isBlocked) taskStatusDistribution.blocked++
+    })
+
+    // Task priority distribution
+    const taskPriorityDistribution = {
+        low: 0,
+        medium: 0,
+        high: 0,
+        urgent: 0
+    }
+
+    allTasks.forEach(task => {
+        if (task.priority === 'low') taskPriorityDistribution.low++
+        else if (task.priority === 'medium') taskPriorityDistribution.medium++
+        else if (task.priority === 'high') taskPriorityDistribution.high++
+        else if (task.priority === 'urgent') taskPriorityDistribution.urgent++
+    })
+
+    // Projects with most tasks
+    const projectTaskCounts = user.teams
+        .flatMap(team => team.team.projects)
+        .map(project => ({
+            name: project.name,
+            taskCount: project.tasks.length
+        }))
+        .sort((a, b) => b.taskCount - a.taskCount)
+        .slice(0, 5)
+
+    return {
+        totalTeams,
+        totalProjects,
+        totalTasks,
+        taskStatusDistribution,
+        taskPriorityDistribution,
+        projectTaskCounts
+    }
 } 

@@ -38,6 +38,7 @@ This will install all required dependencies including:
 - TailwindCSS
 - Clerk authentication
 - Radix UI components
+- Framer Motion for animations
 - Nodemailer for emails
 - React Big Calendar for task calendar
 - Recharts for data visualization
@@ -164,6 +165,14 @@ Your application will be available at [http://localhost:3000](http://localhost:3
 1. Verify Task Status Chart shows your task
 2. Check Calendar view displays your task on the correct date
 3. Test filtering tasks by status and priority
+4. Test the responsive sidebar:
+   - On desktop: Toggle the sidebar between expanded and collapsed states
+   - On mobile: Open and close the sidebar drawer
+   - Verify tooltips appear when hovering over icons in collapsed state
+5. Test the dashboard layout on different devices:
+   - Desktop (1024px and above)
+   - Tablet (768px to 1023px)
+   - Mobile (below 768px)
 
 ## 🏗️ Database Schema Overview
 

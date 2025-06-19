@@ -46,5 +46,11 @@
             "source": "/healthz",
             "destination": "/api/health"
         }
+    ],
+    "crons": [
+        {
+            "path": "/api/tasks/deadline-reminders",
+            "schedule": "0 9 * * *"
+        }
     ]
 }

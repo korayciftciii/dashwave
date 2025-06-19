@@ -9,18 +9,21 @@ const transporter = nodemailer.createTransport({
     },
 })
 
+// Common elements
+const logoHeader = `
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" alt="Dashwave Logo" style="width: 80px; height: auto; margin-bottom: 15px;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">{{HEADER_TEXT}}</h1>
+    </div>
+`;
+
 // Email templates
 const emailTemplates = {
     welcome: (name: string) => ({
         subject: 'Welcome to Dashwave! 🎉',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                    <div style="background: white; width: 60px; height: 60px; border-radius: 15px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #667eea; font-weight: bold; font-size: 24px;">DW</span>
-                    </div>
-                    <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Dashwave!</h1>
-                </div>
+                ${logoHeader.replace('{{HEADER_TEXT}}', 'Welcome to Dashwave!')}
                 <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <h2 style="color: #333; margin-top: 0;">Hi ${name}! 👋</h2>
                     <p style="color: #666; line-height: 1.6; font-size: 16px;">
@@ -68,12 +71,7 @@ const emailTemplates = {
         subject: `You've been invited to join "${teamName}" on Dashwave`,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                    <div style="background: white; width: 60px; height: 60px; border-radius: 15px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #667eea; font-weight: bold; font-size: 24px;">DW</span>
-                    </div>
-                    <h1 style="color: white; margin: 0; font-size: 28px;">Team Invitation</h1>
-                </div>
+                ${logoHeader.replace('{{HEADER_TEXT}}', 'Team Invitation')}
                 <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <h2 style="color: #333; margin-top: 0;">You're invited! 🎉</h2>
                     <p style="color: #666; line-height: 1.6; font-size: 16px;">
@@ -112,12 +110,7 @@ const emailTemplates = {
         subject: `New activity in "${projectName}" - ${teamName}`,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                    <div style="background: white; width: 60px; height: 60px; border-radius: 15px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #667eea; font-weight: bold; font-size: 24px;">DW</span>
-                    </div>
-                    <h1 style="color: white; margin: 0; font-size: 28px;">Project Update</h1>
-                </div>
+                ${logoHeader.replace('{{HEADER_TEXT}}', 'Project Update')}
                 <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <h2 style="color: #333; margin-top: 0;">Activity in "${projectName}"</h2>
                     <p style="color: #666; line-height: 1.6; font-size: 16px;">
@@ -143,6 +136,182 @@ const emailTemplates = {
             ${message}
             
             View your projects: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects
+        `
+    }),
+
+    taskUpdate: (recipientName: string, taskTitle: string, projectName: string, teamName: string, updatedFields: any, updaterName: string, taskId: string, projectId: string) => {
+        // Format the updated fields
+        const changes = Object.entries(updatedFields).map(([key, value]) => {
+            // Format the field names for readability
+            const fieldName = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+            return `<li><strong>${fieldName}:</strong> ${value}</li>`;
+        }).join('');
+
+        return {
+            subject: `Task Updated: ${taskTitle}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    ${logoHeader.replace('{{HEADER_TEXT}}', 'Task Update')}
+                    <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h2 style="color: #333; margin-top: 0;">Hi ${recipientName}! 📝</h2>
+                        <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                            <strong>${updaterName}</strong> has updated a task you're assigned to in <strong>${teamName}</strong>.
+                        </p>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #374151; margin-top: 0;">${taskTitle}</h3>
+                            <p><strong>Project:</strong> ${projectName}</p>
+                            <p><strong>Team:</strong> ${teamName}</p>
+                            
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                                <h4 style="color: #374151; margin-top: 0;">Changes made:</h4>
+                                <ul style="color: #6b7280;">
+                                    ${changes}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects/${projectId}" 
+                               style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                                View Updated Task
+                            </a>
+                        </div>
+                        
+                        <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+                            Best regards,<br>The Dashwave Team
+                        </p>
+                    </div>
+                </div>
+            `,
+            text: `
+                Task Updated: ${taskTitle}
+                
+                Hi ${recipientName}!
+                
+                ${updaterName} has updated a task you're assigned to in ${teamName}.
+                
+                Task: ${taskTitle}
+                Project: ${projectName}
+                Team: ${teamName}
+                
+                Changes made:
+                ${Object.entries(updatedFields).map(([key, value]) => {
+                const fieldName = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+                return `- ${fieldName}: ${value}`;
+            }).join('\n')}
+                
+                View the updated task: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects/${projectId}
+                
+                Best regards,
+                The Dashwave Team
+            `
+        };
+    },
+
+    taskDeadlineReminder: (recipientName: string, taskTitle: string, projectName: string, teamName: string, deadline: string, projectId: string) => ({
+        subject: `Reminder: Task Deadline Approaching - ${taskTitle}`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                ${logoHeader.replace('{{HEADER_TEXT}}', 'Deadline Reminder')}
+                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333; margin-top: 0;">Hi ${recipientName}! ⏰</h2>
+                    <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                        This is a friendly reminder that your task deadline is approaching.
+                    </p>
+                    
+                    <div style="background: #fff4e5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f97316;">
+                        <h3 style="color: #7c2d12; margin-top: 0;">${taskTitle}</h3>
+                        <p><strong>Deadline:</strong> ${deadline}</p>
+                        <p><strong>Project:</strong> ${projectName}</p>
+                        <p><strong>Team:</strong> ${teamName}</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects/${projectId}" 
+                           style="background: #f97316; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                            View Task
+                        </a>
+                    </div>
+                    
+                    <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+                        Best regards,<br>The Dashwave Team
+                    </p>
+                </div>
+            </div>
+        `,
+        text: `
+            Reminder: Task Deadline Approaching - ${taskTitle}
+            
+            Hi ${recipientName}!
+            
+            This is a friendly reminder that your task deadline is approaching.
+            
+            Task: ${taskTitle}
+            Deadline: ${deadline}
+            Project: ${projectName}
+            Team: ${teamName}
+            
+            View task: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects/${projectId}
+            
+            Best regards,
+            The Dashwave Team
+        `
+    }),
+
+    taskCommentNotification: (recipientName: string, commenterName: string, taskTitle: string, projectName: string, teamName: string, comment: string, projectId: string) => ({
+        subject: `New Comment on Task: ${taskTitle}`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                ${logoHeader.replace('{{HEADER_TEXT}}', 'New Comment')}
+                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333; margin-top: 0;">Hi ${recipientName}! 💬</h2>
+                    <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                        <strong>${commenterName}</strong> has added a comment to a task you're involved with.
+                    </p>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="color: #374151; margin-top: 0;">${taskTitle}</h3>
+                        <p><strong>Project:</strong> ${projectName}</p>
+                        <p><strong>Team:</strong> ${teamName}</p>
+                        
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                            <h4 style="color: #374151; margin-top: 0;">Comment:</h4>
+                            <p style="color: #6b7280; background: #ffffff; padding: 12px; border-radius: 6px; border-left: 3px solid #667eea;">${comment}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects/${projectId}" 
+                           style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                            View Discussion
+                        </a>
+                    </div>
+                    
+                    <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+                        Best regards,<br>The Dashwave Team
+                    </p>
+                </div>
+            </div>
+        `,
+        text: `
+            New Comment on Task: ${taskTitle}
+            
+            Hi ${recipientName}!
+            
+            ${commenterName} has added a comment to a task you're involved with.
+            
+            Task: ${taskTitle}
+            Project: ${projectName}
+            Team: ${teamName}
+            
+            Comment:
+            ${comment}
+            
+            View discussion: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard/projects/${projectId}
+            
+            Best regards,
+            The Dashwave Team
         `
     })
 }
@@ -220,6 +389,132 @@ export const sendProjectNotificationEmail = async (to: string, projectName: stri
     }
 }
 
+// New task update notification email
+export const sendTaskUpdateEmail = async (
+    to: string,
+    recipientName: string,
+    taskTitle: string,
+    projectName: string,
+    teamName: string,
+    updatedFields: any,
+    updaterName: string,
+    taskId: string,
+    projectId: string
+) => {
+    try {
+        const template = emailTemplates.taskUpdate(
+            recipientName,
+            taskTitle,
+            projectName,
+            teamName,
+            updatedFields,
+            updaterName,
+            taskId,
+            projectId
+        )
+
+        const mailOptions = {
+            from: {
+                name: 'Dashwave',
+                address: process.env.GMAIL_USER!
+            },
+            to,
+            subject: template.subject,
+            html: template.html,
+            text: template.text
+        }
+
+        const result = await transporter.sendMail(mailOptions)
+        console.log('Task update email sent successfully:', result.messageId)
+        return { success: true, messageId: result.messageId }
+    } catch (error) {
+        console.error('Error sending task update email:', error)
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+}
+
+// Task deadline reminder email
+export const sendTaskDeadlineReminderEmail = async (
+    to: string,
+    recipientName: string,
+    taskTitle: string,
+    projectName: string,
+    teamName: string,
+    deadline: string,
+    projectId: string
+) => {
+    try {
+        const template = emailTemplates.taskDeadlineReminder(
+            recipientName,
+            taskTitle,
+            projectName,
+            teamName,
+            deadline,
+            projectId
+        )
+
+        const mailOptions = {
+            from: {
+                name: 'Dashwave',
+                address: process.env.GMAIL_USER!
+            },
+            to,
+            subject: template.subject,
+            html: template.html,
+            text: template.text
+        }
+
+        const result = await transporter.sendMail(mailOptions)
+        console.log('Task deadline reminder email sent successfully:', result.messageId)
+        return { success: true, messageId: result.messageId }
+    } catch (error) {
+        console.error('Error sending task deadline reminder email:', error)
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+}
+
+// Task comment notification email
+export const sendTaskCommentEmail = async (
+    to: string,
+    recipientName: string,
+    commenterName: string,
+    taskTitle: string,
+    projectName: string,
+    teamName: string,
+    comment: string,
+    projectId: string
+) => {
+    try {
+        const template = emailTemplates.taskCommentNotification(
+            recipientName,
+            commenterName,
+            taskTitle,
+            projectName,
+            teamName,
+            comment,
+            projectId
+        )
+
+        const mailOptions = {
+            from: {
+                name: 'Dashwave',
+                address: process.env.GMAIL_USER!
+            },
+            to,
+            subject: template.subject,
+            html: template.html,
+            text: template.text
+        }
+
+        const result = await transporter.sendMail(mailOptions)
+        console.log('Task comment notification email sent successfully:', result.messageId)
+        return { success: true, messageId: result.messageId }
+    } catch (error) {
+        console.error('Error sending task comment notification email:', error)
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+}
+
 // Test email function
 export const sendTestEmail = async (to: string) => {
     try {
@@ -232,6 +527,7 @@ export const sendTestEmail = async (to: string) => {
             subject: 'Test Email from Dashwave',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" alt="Dashwave Logo" style="width: 80px; height: auto; margin-bottom: 15px;">
                     <h1 style="color: #667eea;">Test Email</h1>
                     <p>This is a test email from Dashwave. If you received this, your email configuration is working correctly!</p>
                     <p>Sent at: ${new Date().toLocaleString()}</p>

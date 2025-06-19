@@ -12,8 +12,29 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Circle, Clock, CheckCircle, Calendar, User, Tag, AlertTriangle } from 'lucide-react'
+import {
+    Circle,
+    Clock,
+    CheckCircle,
+    Calendar,
+    User,
+    Tag,
+    AlertTriangle,
+    Trash2,
+    Loader2
+} from 'lucide-react'
 import { toast } from 'sonner'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface Task {
     id: string
@@ -30,6 +51,11 @@ interface Task {
     notes: string | null
 }
 
+interface TeamMember {
+    role: string
+    canManageTasks: boolean
+}
+
 interface TaskCardProps {
     task: Task & {
         assignedTo?: {
@@ -37,6 +63,7 @@ interface TaskCardProps {
             email: string
         } | null
     }
+    teamMember?: TeamMember
     onUpdate?: () => void
 }
 
@@ -72,10 +99,19 @@ const priorityEmojis = {
     urgent: '🔴'
 }
 
-export default function TaskCard({ task, onUpdate }: TaskCardProps) {
+export default function TaskCard({ task, teamMember, onUpdate }: TaskCardProps) {
     const [status, setStatus] = useState(task.status)
     const [loading, setLoading] = useState(false)
+    const [deleteLoading, setDeleteLoading] = useState(false)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const router = useRouter()
+
+    // Check if user has permission to delete tasks
+    const canDelete = teamMember && (
+        teamMember.role === 'OWNER' ||
+        teamMember.role === 'MANAGER' ||
+        teamMember.canManageTasks
+    )
 
     const handleStatusChange = async (newStatus: string) => {
         if (loading) return
@@ -105,6 +141,34 @@ export default function TaskCard({ task, onUpdate }: TaskCardProps) {
         }
     }
 
+    const handleDelete = async () => {
+        if (deleteLoading) return
+
+        setDeleteLoading(true)
+        try {
+            const response = await fetch(`/api/tasks/${task.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.error || 'Failed to delete task')
+            }
+
+            toast.success('Task deleted successfully')
+            setDeleteDialogOpen(false)
+            onUpdate?.()
+            router.refresh()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to delete task')
+        } finally {
+            setDeleteLoading(false)
+        }
+    }
+
     const StatusIcon = statusIcons[status as keyof typeof statusIcons] || Circle
     const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && status !== 'done'
     const isDueSoon = task.dueDate && !isOverdue &&
@@ -126,6 +190,46 @@ export default function TaskCard({ task, onUpdate }: TaskCardProps) {
                         <Badge className={`${statusColors[status as keyof typeof statusColors]} text-white`}>
                             {statusLabels[status as keyof typeof statusLabels]}
                         </Badge>
+
+                        {/* Delete task button for managers and owners */}
+                        {canDelete && (
+                            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 rounded-full hover:bg-red-100 hover:text-red-600"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to delete this task? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={(e: React.MouseEvent) => {
+                                                e.preventDefault()
+                                                handleDelete()
+                                            }}
+                                            className="bg-red-600 hover:bg-red-700"
+                                            disabled={deleteLoading}
+                                        >
+                                            {deleteLoading ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                'Delete'
+                                            )}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
                     </div>
                 </div>
             </CardHeader>

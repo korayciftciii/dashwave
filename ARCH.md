@@ -28,6 +28,7 @@ The system follows a layered architecture with clear separation of concerns:
 - **[Recharts](https://recharts.org/)** - Composable charting library
 - **[SWR](https://swr.vercel.app/)** - React Hooks for data fetching
 - **[Moment.js](https://momentjs.com/)** - Date manipulation library
+- **[Framer Motion](https://www.framer.com/motion/)** - Animation library for React
 
 ### Backend Technologies
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM
@@ -140,6 +141,9 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 
 ### Component Structure
 - **Layout components** for consistent UI structure
+  - **DashboardLayout** - Main layout with responsive sidebar and header
+  - **Sidebar** - Collapsible navigation with mobile support
+  - **Topbar** - Responsive header with user controls
 - **Page components** for route-specific content
 - **Feature components** for business logic
 - **UI components** for reusable interface elements
@@ -149,6 +153,14 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **URL state** for navigation and filtering
 - **Server state** via API calls and SWR caching
 - **Authentication state** through Clerk context
+- **Sidebar state** with localStorage persistence
+
+### Responsive Design
+- **Mobile-first approach** with tailored experiences per device
+- **Adaptive sidebar** that collapses on smaller screens
+- **Overlay navigation** for mobile devices
+- **Responsive grid layouts** using TailwindCSS
+- **Smooth animations** with Framer Motion
 
 ### Dashboard Components
 - **TaskStatusChart** - Visualize task distribution
