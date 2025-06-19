@@ -35,6 +35,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import Link from 'next/link'
 
 interface Task {
     id: string
@@ -105,6 +106,15 @@ export default function TaskCard({ task, teamMember, onUpdate }: TaskCardProps) 
     const [deleteLoading, setDeleteLoading] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const router = useRouter()
+
+    // Format date for display
+    const formatDate = (date: Date | null) => {
+        if (!date) return 'Not set'
+        return new Date(date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        })
+    }
 
     // Check if user has permission to delete tasks
     const canDelete = teamMember && (
@@ -198,30 +208,30 @@ export default function TaskCard({ task, teamMember, onUpdate }: TaskCardProps) 
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-7 w-7 rounded-full hover:bg-red-100 hover:text-red-600"
+                                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            Are you sure you want to delete this task? This action cannot be undone.
+                                            This will permanently delete the task "{task.title}". This action cannot be undone.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                                         <AlertDialogAction
-                                            onClick={(e: React.MouseEvent) => {
-                                                e.preventDefault()
-                                                handleDelete()
-                                            }}
-                                            className="bg-red-600 hover:bg-red-700"
+                                            onClick={handleDelete}
                                             disabled={deleteLoading}
+                                            className="bg-destructive hover:bg-destructive/90"
                                         >
                                             {deleteLoading ? (
-                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Deleting...
+                                                </>
                                             ) : (
                                                 'Delete'
                                             )}
@@ -233,60 +243,31 @@ export default function TaskCard({ task, teamMember, onUpdate }: TaskCardProps) 
                     </div>
                 </div>
             </CardHeader>
-            {(task.description || task.notes) && (
-                <CardContent className="pb-3">
-                    {task.description && (
-                        <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-                    )}
-                    {task.notes && (
-                        <p className="text-xs text-gray-500 italic">Note: {task.notes}</p>
-                    )}
-                </CardContent>
-            )}
-            <CardFooter className="flex flex-col space-y-3 pt-3">
-                {/* Tags */}
-                {task.tags && task.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 w-full">
-                        {task.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                                <Tag className="h-3 w-3 mr-1" />
-                                {tag}
-                            </Badge>
-                        ))}
-                    </div>
+            <CardContent className="pb-2">
+                {task.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {task.description}
+                    </p>
                 )}
-
-                {/* Task Info */}
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                        <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>{new Date(task.createdAt).toLocaleDateString()}</span>
+                <div className="flex flex-wrap gap-2 items-center text-sm">
+                    {task.dueDate && (
+                        <div className="flex items-center text-muted-foreground">
+                            <Calendar className="h-3.5 w-3.5 mr-1" />
+                            <span className={isOverdue ? 'text-red-500 font-medium' : ''}>
+                                Due {formatDate(task.dueDate)}
+                            </span>
                         </div>
-
-                        {task.dueDate && (
-                            <div className={`flex items-center space-x-1 ${isOverdue ? 'text-red-600' : isDueSoon ? 'text-yellow-600' : ''}`}>
-                                <AlertTriangle className="h-4 w-4" />
-                                <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
-                            </div>
-                        )}
-
-                        {task.estimatedHours && (
-                            <div className="flex items-center space-x-1">
-                                <Clock className="h-4 w-4" />
-                                <span>{task.estimatedHours}h</span>
-                            </div>
-                        )}
-
-                        {task.assignedTo && (
-                            <div className="flex items-center space-x-1">
-                                <User className="h-4 w-4" />
-                                <span>
-                                    {task.assignedTo.name || task.assignedTo.email}
-                                </span>
-                            </div>
-                        )}
-                    </div>
+                    )}
+                </div>
+            </CardContent>
+            <CardFooter className="pt-0">
+                <div className="w-full flex items-center justify-between">
+                    <Link
+                        href={`/dashboard/tasks/${task.id}`}
+                        className="text-xs text-blue-600 hover:underline"
+                    >
+                        View details
+                    </Link>
 
                     <Select value={status} onValueChange={handleStatusChange} disabled={loading}>
                         <SelectTrigger className="w-32">

@@ -16,7 +16,13 @@ interface SidebarLinkProps {
 
 export function SidebarLink({ href, icon, label, isOpen }: SidebarLinkProps) {
     const pathname = usePathname()
-    const isActive = pathname === href || pathname?.startsWith(`${href}/`)
+
+    // Düzeltilmiş aktif durum kontrolü - tam eşleşme yerine başlangıç kontrolü
+    // Ancak dashboard için özel kontrol ekliyoruz
+    const isActive =
+        href === '/dashboard'
+            ? pathname === '/dashboard' || pathname === '/dashboard/'
+            : pathname.startsWith(href)
 
     const linkContent = (
         <div

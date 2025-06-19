@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/sidebar'
 import { Topbar } from '@/components/topbar'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import { LoadingOverlay } from '@/components/loading-overlay'
 
 interface DashboardLayoutProps {
     children: ReactNode
@@ -27,6 +28,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     {children}
                 </main>
             </div>
+
+            {/* Loading overlay */}
+            <LoadingOverlay />
         </div>
     )
 } 

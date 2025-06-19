@@ -30,11 +30,15 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **Priority Levels**: Low, Medium, High, and Urgent with visual indicators
 - **Due Date Tracking**: Overdue and due-soon warnings with visual feedback
 - **Task Details**: Start dates, due dates, estimated hours, tags, and notes
+- **Task Detail Page**: Comprehensive view of all task information in a well-organized layout
+- **Task Editing**: Full editing capabilities for all task properties
+- **Excel Export**: Export task data to Excel for reporting and analysis
 
 ### 🔍 Search & Filtering
 - **Task Search**: Find tasks by title, description, or tags
 - **Advanced Filters**: Filter by status, priority, assignee, and dates
 - **Grouped Views**: Organize tasks by project with collapsible sections
+- **Multiple View Options**: Switch between card and table views for tasks
 
 ### 🔐 Security & Authentication
 - **Enterprise-Grade Auth**: Powered by Clerk authentication

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Search } from "lucide-react"
 import * as XLSX from 'xlsx'
+import Link from "next/link"
 
 interface Task {
     id: string
@@ -143,7 +144,9 @@ export default function TasksTable({ tasks }: TasksTableProps) {
                         {filteredTasks.map((task) => (
                             <TableRow key={task.id}>
                                 <TableCell className="font-medium">
-                                    {task.title}
+                                    <Link href={`/dashboard/tasks/${task.id}`} className="hover:underline">
+                                        {task.title}
+                                    </Link>
                                     {task.description && (
                                         <p className="text-sm text-gray-500 mt-1">{task.description}</p>
                                     )}

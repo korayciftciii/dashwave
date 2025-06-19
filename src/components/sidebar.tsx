@@ -29,16 +29,19 @@ export function Sidebar() {
                 "flex h-16 items-center border-b px-4",
                 isOpen ? "justify-between" : "justify-center"
             )}>
-                {isOpen && (
+                {isOpen ? (
                     <div className="flex items-center gap-2">
                         <Image src="/logo.png" alt="Logo" width={30} height={30} />
                         <span className="font-semibold">DashWave</span>
                     </div>
-                )}
+                ) : null}
                 {!isMobile && (
                     <button
                         onClick={toggle}
-                        className="rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        className={cn(
+                            "rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800",
+                            !isOpen && "w-full flex justify-center"
+                        )}
                     >
                         <ChevronLeft className={cn(
                             "h-5 w-5 transition-transform",

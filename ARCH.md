@@ -29,6 +29,7 @@ The system follows a layered architecture with clear separation of concerns:
 - **[SWR](https://swr.vercel.app/)** - React Hooks for data fetching
 - **[Moment.js](https://momentjs.com/)** - Date manipulation library
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library for React
+- **[XLSX](https://github.com/sheetjs/sheetjs)** - Excel file generation library
 
 ### Backend Technologies
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM
@@ -167,6 +168,10 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **TaskCalendar** - Calendar view for task scheduling
 - **TaskSearchFilter** - Advanced filtering system
 - **GroupedTasksView** - Project-based task organization
+- **TasksTable** - Tabular view of tasks with sorting and filtering
+- **TaskDetailPage** - Comprehensive view of task information
+- **TaskEditPage** - Full editing capabilities for tasks
+- **ExcelExport** - Export task data to Excel for reporting
 
 ## 🔄 API Architecture
 

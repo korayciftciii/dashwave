@@ -41,7 +41,10 @@ export function useSidebar() {
         }
     }, [isOpen, isMobile])
 
-    const toggle = () => setIsOpen(prev => !prev)
+    // Toggle sidebar
+    const toggle = () => {
+        setIsOpen(prev => !prev)
+    }
 
     return { isOpen, toggle, isMobile }
 }

@@ -4,6 +4,65 @@ import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { notifyTaskStatusChange } from '@/lib/email-actions'
 
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    try {
+        const user = await currentUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        const dbUser = await prisma.user.findUnique({
+            where: { clerkId: user.id }
+        })
+
+        if (!dbUser) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+
+        // Get the task with related data
+        const task = await prisma.task.findUnique({
+            where: { id: params.id },
+            include: {
+                project: {
+                    include: {
+                        team: {
+                            include: {
+                                members: {
+                                    where: {
+                                        userId: dbUser.id
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                assignedTo: true,
+                createdBy: true
+            }
+        })
+
+        if (!task) {
+            return NextResponse.json({ error: 'Task not found' }, { status: 404 })
+        }
+
+        // Check if user has access to this task (is a member of the team)
+        if (task.project.team.members.length === 0) {
+            return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+        }
+
+        return NextResponse.json(task)
+    } catch (error) {
+        console.error('Error fetching task:', error)
+        return NextResponse.json(
+            { error: 'Failed to fetch task' },
+            { status: 500 }
+        )
+    }
+}
+
 export async function PATCH(
     request: NextRequest,
     { params }: { params: { id: string } }

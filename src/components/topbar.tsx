@@ -26,12 +26,15 @@ export function Topbar() {
 
     return (
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-            {isMobile && (
-                <Button variant="ghost" size="icon" onClick={toggle} className="lg:hidden">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                </Button>
-            )}
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggle}
+                className={isMobile ? "lg:hidden" : "hidden lg:flex"}
+            >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+            </Button>
 
             <div className="flex flex-1 items-center justify-between">
                 <h1 className={cn(
