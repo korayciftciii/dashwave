@@ -1,6 +1,6 @@
 # 🌊 Dashwave - Multi-Tenant Team Collaboration Platform
 
-![Dashwave Banner]([https://dashwave-six.vercel.app/_next/image?url=%2Flogo.png&w=48&q=75](https://dashwave-six.vercel.app/_next/image?url=%2Flogo.png&w=48&q=75))
+![Dashwave Banner]([https://dashwave-six.vercel.app/next/image?url=%2Flogo.png&w=48&q=75](https://dashwave-six.vercel.app/next/image?url=%2Flogo.png&w=48&q=75))
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
