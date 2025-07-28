@@ -1,6 +1,6 @@
 # 🌊 Dashwave - Multi-Tenant Team Collaboration Platform
 
-![Dashwave Banner](https://via.placeholder.com/1200x400/667eea/ffffff?text=Dashwave+-+Team+Collaboration+Platform)
+![Dashwave Banner]([https://dashwave-six.vercel.app/next/image?url=%2Flogo.png&w=48&q=75](https://dashwave-six.vercel.app/next/image?url=%2Flogo.png&w=48&q=75))
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -305,7 +305,7 @@ npm start
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
 
 ---
 
