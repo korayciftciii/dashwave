@@ -18,6 +18,8 @@ model User {
   assignedTasks Task[]      @relation("AssignedTasks")
   createdTasks Task[]      @relation("CreatedTasks")
   uploadedFiles ProjectFile[] @relation("UploadedFiles")
+  comments     TaskComment[] @relation("CommentAuthor")
+  mentionedInComments TaskCommentMention[] @relation("MentionedInComments")
 }
   
 model Team {
@@ -82,6 +84,7 @@ model Task {
   completedAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  comments     TaskComment[]
 }
 
 model ProjectFile {
@@ -95,5 +98,39 @@ model ProjectFile {
   publicId    String
   uploadedBy  User     @relation("UploadedFiles", fields: [uploadedById], references: [id])
   uploadedById String
+  createdAt   DateTime @default(now())
+} 
+
+model TaskComment {
+  id          String   @id @default(cuid())
+  content     String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String
+  author      User     @relation("CommentAuthor", fields: [authorId], references: [id])
+  authorId    String
+  attachments TaskCommentAttachment[]
+  mentions    TaskCommentMention[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TaskCommentAttachment {
+  id          String   @id @default(cuid())
+  comment     TaskComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId   String
+  fileUrl     String
+  fileName    String
+  fileType    String   // "image", "video", "document", etc.
+  fileSize    Int      // Size in bytes
+  publicId    String
+  createdAt   DateTime @default(now())
+}
+
+model TaskCommentMention {
+  id          String   @id @default(cuid())
+  comment     TaskComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId   String
+  user        User     @relation("MentionedInComments", fields: [userId], references: [id])
+  userId      String
   createdAt   DateTime @default(now())
 } 

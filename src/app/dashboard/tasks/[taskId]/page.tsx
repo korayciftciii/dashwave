@@ -19,8 +19,10 @@ import {
     CheckCircle2,
     Circle,
     AlertCircle,
-    Edit
+    Edit,
+    MessageSquare
 } from 'lucide-react'
+import TaskComments from './task-comments'
 
 // Generate dynamic metadata for the page
 type Props = {
@@ -114,6 +116,16 @@ export default async function TaskDetailPage({ params }: Props) {
         notFound()
     }
 
+    // Get all team members for mentions
+    const teamMembers = await prisma.teamMember.findMany({
+        where: {
+            teamId: task.project.teamId
+        },
+        include: {
+            user: true
+        }
+    })
+
     // Format dates for display
     const formatDate = (date: Date | null) => {
         if (!date) return 'Not set'
@@ -130,6 +142,11 @@ export default async function TaskDetailPage({ params }: Props) {
         teamMember.role === 'MANAGER' ||
         teamMember.canManageTasks ||
         task.createdBy.clerkId === userId
+
+    // Check if user is team admin
+    const isTeamAdmin =
+        teamMember.role === 'OWNER' ||
+        teamMember.role === 'MANAGER'
 
     return (
         <div className="container mx-auto py-6 space-y-6">
@@ -190,6 +207,10 @@ export default async function TaskDetailPage({ params }: Props) {
                     <Tabs defaultValue="details">
                         <TabsList>
                             <TabsTrigger value="details">Details</TabsTrigger>
+                            <TabsTrigger value="comments" className="flex items-center gap-1">
+                                <MessageSquare className="h-4 w-4" />
+                                Comments
+                            </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="details" className="space-y-6 pt-4">
@@ -243,6 +264,19 @@ export default async function TaskDetailPage({ params }: Props) {
                                     </CardContent>
                                 </Card>
                             )}
+                        </TabsContent>
+
+                        <TabsContent value="comments" className="pt-4">
+                            <TaskComments
+                                taskId={task.id}
+                                users={teamMembers.map(member => ({
+                                    id: member.user.id,
+                                    name: member.user.name,
+                                    email: member.user.email
+                                }))}
+                                currentUserId={userId}
+                                isTeamAdmin={isTeamAdmin}
+                            />
                         </TabsContent>
                     </Tabs>
                 </div>

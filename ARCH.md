@@ -15,6 +15,7 @@ The system follows a layered architecture with clear separation of concerns:
 - **Backend Layer**: API routes, Prisma ORM, email services
 - **Data Layer**: PostgreSQL database with Neon.tech
 - **Performance Layer**: SWR for data fetching, Suspense for streaming
+- **Media Layer**: Cloudinary for file storage and management
 
 ## 🛠️ Technology Stack
 
@@ -30,11 +31,14 @@ The system follows a layered architecture with clear separation of concerns:
 - **[Moment.js](https://momentjs.com/)** - Date manipulation library
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library for React
 - **[XLSX](https://github.com/sheetjs/sheetjs)** - Excel file generation library
+- **[TipTap](https://tiptap.dev/)** - Headless rich text editor for React
+- **[date-fns](https://date-fns.org/)** - Modern JavaScript date utility library
 
 ### Backend Technologies
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM
 - **[PostgreSQL](https://www.postgresql.org/)** - Relational database
 - **[Nodemailer](https://nodemailer.com/)** - Email service
+- **[Cloudinary](https://cloudinary.com/)** - Cloud-based media management
 
 ### Authentication & Security
 - **[Clerk](https://clerk.com/)** - Authentication platform
@@ -77,6 +81,9 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 3. **TeamMember** - Team membership with roles and permissions
 4. **Project** - Projects within teams
 5. **Task** - Tasks within projects with assignments
+6. **TaskComment** - Comments on tasks with rich text and attachments
+7. **TaskCommentAttachment** - Files attached to comments
+8. **TaskCommentMention** - User mentions in comments
 
 ### Task Schema
 - **id** - Unique identifier
@@ -98,6 +105,30 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **isBlocked** - Whether task is blocked
 - **blockedReason** - Why task is blocked (optional)
 - **completedAt** - When task was completed
+
+### Comment Schema
+- **id** - Unique identifier
+- **content** - Rich text content with formatting
+- **taskId** - Associated task
+- **authorId** - User who created the comment
+- **createdAt** - Creation timestamp
+- **updatedAt** - Last update timestamp
+
+### Comment Attachment Schema
+- **id** - Unique identifier
+- **commentId** - Associated comment
+- **fileUrl** - URL to the file in Cloudinary
+- **fileName** - Original file name
+- **fileType** - Type of file (image, video, document, etc.)
+- **fileSize** - Size in bytes
+- **publicId** - Cloudinary public ID
+- **createdAt** - Creation timestamp
+
+### Comment Mention Schema
+- **id** - Unique identifier
+- **commentId** - Associated comment
+- **userId** - Mentioned user
+- **createdAt** - Creation timestamp
 
 ### Role System
 - **OWNER** - Full access, can transfer ownership
@@ -137,6 +168,8 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - Team invitations
 - Welcome messages
 - Project notifications
+- Comment notifications
+- User mentions
 
 ## 🎨 Frontend Architecture
 
@@ -148,6 +181,17 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **Page components** for route-specific content
 - **Feature components** for business logic
 - **UI components** for reusable interface elements
+
+### Rich Text Editor
+- **TipTap-based** editor for formatted content
+- **Component-based architecture** for modularity
+- **Extensions** for specialized functionality:
+  - Text formatting (bold, italic, lists)
+  - Links
+  - Image embedding
+  - User mentions
+- **Server-side rendering** compatibility with Next.js
+- **Client-side hydration** for interactive editing
 
 ### State Management
 - **React state** for local component state
@@ -172,6 +216,8 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **TaskDetailPage** - Comprehensive view of task information
 - **TaskEditPage** - Full editing capabilities for tasks
 - **ExcelExport** - Export task data to Excel for reporting
+- **TaskCommentForm** - Rich text comment form with file uploads
+- **TaskCommentList** - Display and manage task comments
 
 ## 🔄 API Architecture
 
@@ -181,11 +227,33 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **Consistent response formats** with proper error handling
 - **Input validation** and sanitization
 
+### Server Actions
+- **Form submission handling** with server actions
+- **File upload processing** for comment attachments
+- **Comment management** for creating, reading, and deleting comments
+- **User mention processing** for notification triggers
+
 ### Middleware Pipeline
 1. **Authentication** - Verify user identity
 2. **Authorization** - Check team membership and permissions
 3. **Validation** - Validate request data
 4. **Rate limiting** - Prevent abuse
+
+## 📁 File Management
+
+### Cloudinary Integration
+- **Secure file uploads** directly to Cloudinary
+- **File type validation** for security
+- **Size limitations** to prevent abuse
+- **Automatic optimization** of images and videos
+- **Secure URL generation** for access control
+- **File deletion** when comments are removed
+
+### Supported File Types
+- **Images**: JPEG, PNG, GIF, WebP
+- **Videos**: MP4, WebM
+- **Documents**: PDF, Word, Excel
+- **Size limits**: 10MB per file
 
 ## 🚀 Performance Optimization
 
@@ -246,6 +314,8 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 6. **Kanban board view** for visual task management
 7. **Time tracking** integration
 8. **Document management** system
+9. **Comment reactions** with emoji support
+10. **Thread-based discussions** for complex conversations
 
 ### Scalability Improvements
 1. **Microservices architecture** for complex features
@@ -260,6 +330,7 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
 - **Neon.tech PostgreSQL** for database
 - **Gmail SMTP** for email delivery
 - **Clerk** for authentication services
+- **Cloudinary** for media storage and delivery
 
 ### Environment Configuration
 - **Environment variables** for sensitive configuration
@@ -274,6 +345,6 @@ Dashwave implements a **shared database, shared schema** multi-tenancy model wit
     Created  by <a href="https://github.com/korayciftciii"><strong>Koray Çiftçi</strong></a>
   </p>
   <p>
-    <strong>Version:</strong> 1.2.0 | <strong>Last Updated:</strong> June 2025
+    <strong>Version:</strong> 1.3.0 | <strong>Last Updated:</strong> July 2025
   </p>
 </div>

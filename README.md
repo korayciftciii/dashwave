@@ -33,6 +33,8 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **Task Detail Page**: Comprehensive view of all task information in a well-organized layout
 - **Task Editing**: Full editing capabilities for all task properties
 - **Excel Export**: Export task data to Excel for reporting and analysis
+- **Task Comments**: Rich text comments with user mentions and file attachments
+- **File Uploads**: Upload images, videos, and documents to task comments via Cloudinary
 
 ### 🔍 Search & Filtering
 - **Task Search**: Find tasks by title, description, or tags
@@ -47,9 +49,11 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **OAuth Support**: Google, GitHub, and Microsoft authentication
 
 ### 📧 Communication
-- **Email Notifications**: Automatic notifications for task assignments
+- **Email Notifications**: Automatic notifications for task assignments and comments
 - **Team Invitations**: Seamless team member onboarding
 - **SMTP Integration**: Gmail-powered email system
+- **Rich Text Comments**: Comment on tasks with formatted text, mentions, and file attachments
+- **User Mentions**: Tag team members in comments with @mentions
 
 ### 🎨 Modern UI/UX
 - **Responsive Design**: Works perfectly on all devices
@@ -60,6 +64,7 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - **Mobile-First Layout**: Optimized for both desktop and mobile experiences
 - **Animated Transitions**: Smooth animations using Framer Motion
 - **Tooltips & Hints**: Improved user experience with contextual information
+- **Rich Text Editor**: TipTap-powered editor for formatted comments and mentions
 
 ## 🚀 Quick Start
 
@@ -69,6 +74,7 @@ A modern, full-stack SaaS platform for team collaboration, project management, a
 - PostgreSQL database (recommended: [Neon.tech](https://neon.tech))
 - Gmail account for SMTP
 - Clerk account for authentication
+- Cloudinary account for file uploads
 
 ### 1. Clone the Repository
 
@@ -102,6 +108,11 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 # Gmail SMTP (for email notifications)
 GMAIL_USER=your-email@gmail.com
 GMAIL_APP_PASSWORD=your-app-password
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
 
 # App Configuration
 NEXT_PUBLIC_APP_URL=https://dashwave-six.vercel.app
@@ -147,6 +158,8 @@ dashwave/
 │   │   │   ├── task-status-chart.tsx # Task status visualization
 │   │   │   ├── task-search-filter.tsx # Advanced search & filtering
 │   │   │   ├── grouped-tasks-view.tsx # Project-grouped tasks
+│   │   │   ├── task-comment-form.tsx # Comment form with rich text editor
+│   │   │   ├── task-comment-list.tsx # Comment display component
 │   │   │   └── ...          # Other dashboard components
 │   │   ├── layout/          # Layout components
 │   │   │   └── dashboard-layout.tsx # Main dashboard layout
@@ -154,9 +167,14 @@ dashwave/
 │   │   ├── topbar.tsx       # Header component
 │   │   ├── sidebar-link.tsx # Navigation link component
 │   │   └── ui/             # Reusable UI components
+│   │       ├── rich-text-editor.tsx # TipTap-powered rich text editor
+│   │       └── ...         # Other UI components
 │   ├── lib/
 │   │   ├── actions.ts       # Server actions
+│   │   ├── comment-actions.ts # Comment-specific server actions
 │   │   ├── email-actions.ts # Email-specific actions
+│   │   ├── file-actions.ts  # File upload actions
+│   │   ├── cloudinary.ts    # Cloudinary configuration
 │   │   ├── email.ts         # Email utilities
 │   │   ├── prisma.ts        # Prisma client
 │   │   ├── utils.ts         # Utility functions
@@ -180,11 +198,13 @@ dashwave/
 - **[Recharts](https://recharts.org/)** - Composable charting library
 - **[SWR](https://swr.vercel.app/)** - React Hooks for data fetching
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library for React
+- **[TipTap](https://tiptap.dev/)** - Headless rich text editor for React
 
 ### Backend
 - **[Prisma](https://www.prisma.io/)** - Next-generation ORM
 - **[PostgreSQL](https://www.postgresql.org/)** - Robust relational database
 - **[Nodemailer](https://nodemailer.com/)** - Email sending library
+- **[Cloudinary](https://cloudinary.com/)** - Media management platform
 
 ### Authentication & Security
 - **[Clerk](https://clerk.com/)** - Complete authentication solution
@@ -232,6 +252,14 @@ dashwave/
 2. View task distribution in the Status Chart
 3. Filter tasks by various criteria
 4. Group tasks by project for better organization
+
+### Task Comments
+1. Navigate to a task's detail page
+2. Click on the "Comments" tab
+3. Use the rich text editor to write formatted comments
+4. Mention team members using @ symbol
+5. Upload files (images, videos, documents) to your comments
+6. View and manage comments from team members
 
 ### Role Management
 1. As a team owner/manager, go to team settings
